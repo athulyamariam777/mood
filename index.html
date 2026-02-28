@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloom — Women's Wellness</title>
+ <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="logo-mark">
+      <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="26" cy="26" r="25" stroke="#c97b63" stroke-width="1.5" fill="rgba(242,196,176,0.2)"/>
+        <path d="M26 36 C26 36 14 28 14 20 C14 15.6 17.6 12 22 12 C24 12 25.8 12.9 26 13 C26.2 12.9 28 12 30 12 C34.4 12 38 15.6 38 20 C38 28 26 36 26 36Z" fill="var(--rose)" opacity="0.8"/>
+        <line x1="26" y1="36" x2="26" y2="42" stroke="var(--rose)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="22" y1="42" x2="30" y2="42" stroke="var(--rose)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1>Bloom</h1>
+    <p class="tagline">Your daily wellness companion</p>
+  </header>
+
+  <!-- Check-in Card -->
+  <div class="check-in-card" id="checkin-card">
+    <p class="emotion-date" id="current-date"></p>
+    <p class="check-in-label">How are you feeling today?</p>
+
+    <div class="input-wrapper">
+      <input class="emotion-input" id="emotion-input" type="text" placeholder="Type how you're feeling…" autocomplete="off" />
+    </div>
+
+    <div class="emotion-suggestions">
+      <button class="emotion-pill" onclick="selectEmotion(this, 'anxious')">😰 Anxious</button>
+      <button class="emotion-pill" onclick="selectEmotion(this, 'tired')">😴 Tired</button>
+      <button class="emotion-pill" onclick="selectEmotion(this, 'sad')">🥺 Sad</button>
+      <button class="emotion-pill" onclick="selectEmotion(this, 'stressed')">😤 Stressed</button>
+      <button class="emotion-pill" onclick="selectEmotion(this, 'happy')">✨ Happy</button>
+      <button class="emotion-pill" onclick="selectEmotion(this, 'overwhelmed')">🌊 Overwhelmed</button>
+      <button class="emotion-pill" onclick="selectEmotion(this, 'hopeful')">🌸 Hopeful</button>
+      <button class="emotion-pill" onclick="selectEmotion(this, 'irritable')">🌩️ Irritable</button>
+    </div>
+
+    <button class="bloom-btn" onclick="showActivities()"><span>Find My Activities →</span></button>
+  </div>
+
+  <!-- Activities Section -->
+  <div id="activities-section">
+    <div class="activities-header">
+      <h2>For when you feel <em id="emotion-display"></em></h2>
+      <p>Choose an activity that resonates with you right now.</p>
+    </div>
+    <div class="activity-cards" id="activity-cards"></div>
+    <div class="reset-link">
+      <button onclick="resetCheckin()">← Check in again</button>
+    </div>
+  </div>
+</div>
+
+<!-- Guided Modal -->
+<div id="guided-modal">
+  <div class="modal-inner">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <span class="modal-icon" id="modal-icon"></span>
+    <h2 class="modal-title" id="modal-title"></h2>
+    <p class="modal-subtitle" id="modal-subtitle"></p>
+    <div class="step-indicator" id="step-indicator"></div>
+    <div class="step-content" id="step-content"></div>
+    <div class="modal-nav" id="modal-nav">
+      <button class="btn-back" id="btn-back" onclick="prevStep()">← Back</button>
+      <button class="btn-next" id="btn-next" onclick="nextStep()"><span id="btn-next-label">Continue</span></button>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
