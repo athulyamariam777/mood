@@ -1,5 +1,107 @@
+// ─── Supabase Setup ──────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://spcsephezlqzykkdyxvi.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwY3NlcGhlemxxenlra2R5eHZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjM2MDQsImV4cCI6MjA4Nzc5OTYwNH0.3XaMtRxv-HaDI6BiAt9WayUQdAegMuVBTnY0xQ6ozFk';
+const db           = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Activity data
+let currentUser = null;
+
+// ─── Auth State ───────────────────────────────────────────────────────────────
+
+// Check if already logged in on page load
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    showApp();
+  }
+})();
+
+// React to login / logout / token refresh
+db.auth.onAuthStateChange((_event, session) => {
+  currentUser = session?.user ?? null;
+  if (currentUser) {
+    showApp();
+  } else {
+    showAuthPanel();
+  }
+});
+
+function showApp() {
+  document.getElementById('auth-panel').style.display   = 'none';
+  document.getElementById('checkin-card').style.display = 'block';
+  // Set today's date now that the card is visible
+  const now = new Date();
+  document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric'
+  });
+}
+
+function showAuthPanel() {
+  document.getElementById('auth-panel').style.display   = 'block';
+  document.getElementById('checkin-card').style.display = 'none';
+  document.getElementById('activities-section').classList.remove('visible');
+}
+
+// ─── Auth Mode Toggle (login ↔ register) ─────────────────────────────────────
+
+let authMode = 'login';
+
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'register' : 'login';
+  const isLogin = authMode === 'login';
+  document.getElementById('auth-title').textContent       = isLogin ? 'Welcome back'            : 'Create your account';
+  document.getElementById('auth-btn-label').textContent   = isLogin ? 'Sign In →'               : 'Create Account →';
+  document.getElementById('auth-switch-text').textContent = isLogin ? "Don't have an account?"  : 'Already have an account?';
+  document.getElementById('auth-switch-btn').textContent  = isLogin ? 'Create one'              : 'Sign in';
+  document.getElementById('auth-error').style.display     = 'none';
+}
+
+async function handleAuth() {
+  const email    = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl    = document.getElementById('auth-error');
+  const btnLabel = document.getElementById('auth-btn-label');
+
+  errEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent   = 'Please enter your email and password.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btnLabel.textContent = 'Please wait…';
+
+  const { error } = authMode === 'login'
+    ? await db.auth.signInWithPassword({ email, password })
+    : await db.auth.signUp({ email, password });
+
+  if (error) {
+    errEl.textContent    = error.message;
+    errEl.style.display  = 'block';
+    btnLabel.textContent = authMode === 'login' ? 'Sign In →' : 'Create Account →';
+  }
+  // On success, onAuthStateChange fires and calls showApp() automatically
+}
+
+async function signOut() {
+  await db.auth.signOut();
+}
+
+// ─── Save Check-in to Supabase ────────────────────────────────────────────────
+
+async function saveCheckin(emotion, activityName) {
+  if (!currentUser) return;
+
+  const { error } = await db
+    .from('checkins')
+    .insert({ user_id: currentUser.id, emotion, activity: activityName });
+
+  if (error) console.error('Could not save check-in:', error.message);
+}
+
+// ─── Activity Data ────────────────────────────────────────────────────────────
+
 const activityMap = {
   anxious: [
     {
@@ -291,18 +393,15 @@ const activityMap = {
   ]
 };
 
-// Fallback activities for custom emotions
 const fallbackActivities = activityMap.anxious;
 
-let currentEmotion = '';
-let currentActivity = null;
-let currentStep = 0;
-let timerInterval = null;
-let timerRemaining = 0;
+let currentEmotion   = '';
+let currentActivity  = null;
+let currentStep      = 0;
+let timerInterval    = null;
+let timerRemaining   = 0;
 
-// Set date
-const now = new Date();
-document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+// ─── App Functions ────────────────────────────────────────────────────────────
 
 function selectEmotion(btn, emotion) {
   document.querySelectorAll('.emotion-pill').forEach(p => p.classList.remove('active'));
@@ -321,7 +420,6 @@ function showActivities() {
 
   currentEmotion = input;
 
-  // Find closest match
   let activities = fallbackActivities;
   for (const key of Object.keys(activityMap)) {
     if (input.includes(key) || key.includes(input)) {
@@ -330,7 +428,6 @@ function showActivities() {
     }
   }
 
-  // Display
   document.getElementById('emotion-display').textContent = input;
   const container = document.getElementById('activity-cards');
   container.innerHTML = '';
@@ -345,7 +442,10 @@ function showActivities() {
       <div class="activity-desc">${act.desc}</div>
       <span class="activity-duration">⏱ ${act.duration}</span>
     `;
-    card.onclick = () => startActivity(act);
+    card.onclick = () => {
+      saveCheckin(currentEmotion, act.name);
+      startActivity(act);
+    };
     container.appendChild(card);
   });
 
@@ -360,11 +460,10 @@ function startActivity(activity) {
   currentStep = 0;
   clearTimer();
 
-  document.getElementById('modal-icon').textContent = activity.icon;
-  document.getElementById('modal-title').textContent = activity.name;
+  document.getElementById('modal-icon').textContent     = activity.icon;
+  document.getElementById('modal-title').textContent    = activity.name;
   document.getElementById('modal-subtitle').textContent = activity.desc + ' — ' + activity.duration;
 
-  // Build step dots
   const indicator = document.getElementById('step-indicator');
   indicator.innerHTML = '';
   activity.steps.forEach(() => {
@@ -378,11 +477,10 @@ function startActivity(activity) {
 }
 
 function renderStep() {
-  const step = currentActivity.steps[currentStep];
+  const step  = currentActivity.steps[currentStep];
   const total = currentActivity.steps.length;
   clearTimer();
 
-  // Update dots
   document.querySelectorAll('.step-dot').forEach((dot, i) => {
     dot.className = 'step-dot' + (i <= currentStep ? ' done' : '');
   });
@@ -407,23 +505,18 @@ function renderStep() {
   }
 
   document.getElementById('step-content').innerHTML = html;
-
-  // Back button
   document.getElementById('btn-back').style.display = currentStep === 0 ? 'none' : 'block';
 
-  // Next label
   const isLast = currentStep === total - 1;
   document.getElementById('btn-next-label').textContent = isLast ? 'Finish ✓' : 'Continue →';
 
-  if (step.timer) {
-    startTimer(step.timer);
-  }
+  if (step.timer) startTimer(step.timer);
 }
 
 function startTimer(seconds) {
   timerRemaining = seconds;
-  const arc = document.getElementById('timer-arc');
-  const label = document.getElementById('timer-text');
+  const arc          = document.getElementById('timer-arc');
+  const label        = document.getElementById('timer-text');
   const circumference = 314;
 
   arc.style.strokeDashoffset = 0;
@@ -485,7 +578,6 @@ function resetCheckin() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Close modal on backdrop click
 document.getElementById('guided-modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });

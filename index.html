@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bloom — Women's Wellness</title>
- <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -22,8 +23,37 @@
     <p class="tagline">Your daily wellness companion</p>
   </header>
 
-  <!-- Check-in Card -->
-  <div class="check-in-card" id="checkin-card">
+  <!-- Auth Panel -->
+  <div id="auth-panel" class="check-in-card">
+    <p class="check-in-label" id="auth-title">Welcome back</p>
+
+    <div class="input-wrapper">
+      <input class="emotion-input" id="auth-email" type="email"
+             placeholder="Your email address" autocomplete="email" />
+    </div>
+    <div class="input-wrapper">
+      <input class="emotion-input" id="auth-password" type="password"
+             placeholder="Password (8+ characters)" autocomplete="current-password" />
+    </div>
+
+    <p id="auth-error" style="color:var(--rose);font-size:0.85rem;margin-bottom:12px;display:none;"></p>
+
+    <button class="bloom-btn" onclick="handleAuth()">
+      <span id="auth-btn-label">Sign In →</span>
+    </button>
+
+    <p style="text-align:center;margin-top:16px;font-size:0.85rem;color:var(--soft);">
+      <span id="auth-switch-text">Don't have an account?</span>
+      <button onclick="toggleAuthMode()"
+              style="background:none;border:none;color:var(--rose);cursor:pointer;
+                     text-decoration:underline;font-size:0.85rem;font-family:inherit;">
+        <span id="auth-switch-btn">Create one</span>
+      </button>
+    </p>
+  </div>
+
+  <!-- Check-in Card — hidden until logged in -->
+  <div class="check-in-card" id="checkin-card" style="display:none">
     <p class="emotion-date" id="current-date"></p>
     <p class="check-in-label">How are you feeling today?</p>
 
@@ -55,6 +85,9 @@
     <div class="reset-link">
       <button onclick="resetCheckin()">← Check in again</button>
     </div>
+    <div class="reset-link" style="margin-top:8px;">
+      <button onclick="signOut()">Sign out</button>
+    </div>
   </div>
 </div>
 
@@ -73,6 +106,7 @@
     </div>
   </div>
 </div>
+
 <script src="script.js"></script>
 </body>
 </html>
