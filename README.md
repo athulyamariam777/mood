@@ -9,7 +9,7 @@ Hosted Project Link
 https://github.com/athulyamariam777/mood/
 
 Project Description
-Bloom is a daily emotional wellness web app designed for women. Users check in with how they're feeling each day — choosing from emotions like anxious, tired, sad, stressed, happy, overwhelmed, hopeful, or irritable — and receive a curated set of guided wellness activities tailored to that emotion. Each activity includes step-by-step guidance with built-in timers, helping users complete practices like breathwork, journaling, grounding exercises, and gentle movement.
+Bloom is a daily emotional wellness web app designed for women.women emotional wellbeing is the main concept. Users check in with how they're feeling each day — choosing from emotions like anxious, tired, sad, stressed, happy, overwhelmed, hopeful, or irritable — and receive a curated set of guided wellness activities tailored to that emotion. Each activity includes step-by-step guidance with built-in timers, helping users complete practices like breathwork, journaling, grounding exercises, and gentle movement.
 
 The Problem statement
 Women frequently experience emotional fluctuations tied to stress, hormones, work, and relationships — yet most wellness apps are either too generic, too clinical, or require expensive subscriptions. There is no simple, beautiful, friction-free tool that meets a woman exactly where she is emotionally and guides her through a meaningful self-care practice in under 10 minutes.
