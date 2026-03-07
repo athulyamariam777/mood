@@ -3,8 +3,8 @@ Daily Women's Wellness Companion
 Basic Details
 Team Name: CYBR
 Team Members
-Member 1: Amrutha - College of Engineering, Chengannur
-Member 2: Athulya] - College of Engineering, Chengannur
+Member 1: Amrutha - College of Engineering, Chenganur
+Member 2: Athulya - College of Engineering, Chengannur
 Hosted Project Link
 https://github.com/athulyamariam777/mood/
 
